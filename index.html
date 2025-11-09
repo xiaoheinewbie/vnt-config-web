@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>在线生成VNT配置文件 💕</title>
+<style>
+body {
+  font-family: 'Comic Sans MS', 'Microsoft YaHei', sans-serif;
+  background-color: #fff5f9;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+.container {
+  max-width: 900px;
+  margin: 2em auto;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 0 15px rgba(255, 182, 193, 0.5);
+  padding: 2em;
+}
+h1 {
+  text-align: center;
+  color: #ff66a3;
+  font-weight: bold;
+  margin-bottom: 1em;
+}
+label {
+  display: block;
+  margin-top: 1em;
+  font-weight: bold;
+  color: #ff4d88;
+}
+input, select, textarea {
+  width: 100%;
+  padding: 0.6em;
+  border-radius: 10px;
+  border: 1px solid #ffb6c1;
+  margin-top: 0.3em;
+  font-size: 15px;
+}
+button {
+  background-color: #ff85c0;
+  color: white;
+  border: none;
+  padding: 0.6em 1.2em;
+  border-radius: 15px;
+  margin-top: 1em;
+  cursor: pointer;
+  font-size: 1em;
+  transition: 0.2s;
+}
+button:hover {
+  background-color: #ff5ea8;
+}
+.section-title {
+  background-color: #ffe6ef;
+  padding: 0.6em 1em;
+  border-radius: 12px;
+  color: #ff66a3;
+  margin-top: 1.5em;
+  font-weight: bold;
+}
+textarea#yamlOutput {
+  height: 300px;
+  background: #fff0f5;
+  border: 1px solid #ffc6d9;
+  margin-top: 1em;
+}
+.actions {
+  text-align: center;
+  margin-top: 1em;
+}
+
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🌸 VNT config.yaml 生成器 🌸</h1>
+
+  <div class="section-title">✨ 基本 (必~需~的~~~)</div>
+  <label>Token（组网标识）</label>
+  <input type="text" id="token" placeholder="必填：相同 token 的设备组成同一局域网">
+
+  <label>服务器地址与端口</label>
+<div style="display:flex;gap:0.5em;align-items:center;">
+  <select id="protocol" style="width:70px;text-align:center;">
+    <option value="udp">udp://</option>
+    <option value="tcp">tcp://</option>
+    <option value="ws" selected>ws://</option>
+    <option value="wss">wss://</option>
+  </select>
+  <input type="text" id="server_address" placeholder="服务器域名或IP" style="flex:1;">
+  <input type="text" id="server_port" placeholder="端口号" value="29872" style="width:90px;text-align:center;">
+</div>
+
+
+  <label>接口 IP 地址（ip）</label>
+  <input type="text" id="ip" placeholder="每个客户端的接口IP不能相同">
+
+<label>设备 ID（device_id）</label>
+<div style="display:flex;align-items:center;gap:0.5em;">
+  <input type="text" id="device_id" placeholder="唯一标识，每台设备不同" style="flex:1;">
+  <button type="button" id="genUUID" style="margin-top:0;">随机UUID</button>
+</div>
+
+
+
+
+  <div class="section-title">💡 高级 (按需)</div>
+  <label>设备名称（name）</label>
+  <input type="text" id="name" placeholder="方便区分不同设备">
+
+  <label>STUN 服务器</label>
+  <textarea id="stun_server" rows="5" placeholder="每行一个，例如：stun.miwifi.com"></textarea>
+
+  <label>DNS 服务器</label>
+  <textarea id="dns" rows="5" placeholder="每行一个，例如：1.1.1.1"></textarea>
+
+  <label>打洞模式（punch_model）</label>
+  <select id="punch_model">
+    <option value="all" selected>随机应变</option>
+    <option value="ipv4">ipv4</option>
+    <option value="ipv6">ipv6</option>
+  </select>
+
+  <label>传输模式（use_channel）</label>
+  <select id="use_channel">
+    <option value="all" selected>随机应变</option>
+    <option value="relay">仅中继</option>
+    <option value="p2p">仅直连</option>
+  </select>
+    
+	<label>加密模式（cipher_model）</label>
+  <select id="cipher_model">
+    <option value="off">off（不加密）</option>
+    <option value="aes_gcm">aes_gcm</option>
+    <option value="aes_ecb">aes_ecb</option>
+    <option value="chacha20" selected>chacha20</option>
+    <option value="chacha20_poly1305">chacha20_poly1305</option>
+    <option value="xor">xor</option>
+  </select>
+  
+  <label>加密密钥（password）</label>
+  <input type="text" id="password" placeholder="开启加密模式后填写">
+
+  <label>服务端加密（server_encrypt）</label>
+  <select id="server_encrypt">
+    <option value="false">false (关)</option>
+    <option value="true" selected>true (开)</option>
+  </select>
+
+  <label>压缩算法（compressor）</label>
+  <select id="compressor">
+    <option value="none">none(不加密)</option>
+    <option value="lz4" selected>lz4</option>
+    <option value="zstd">zstd(需自行编译)</option>
+  </select>
+
+  <div class="section-title">🎀 更高级 (一般不填)</div>
+  <label>MTU</label>
+  <input type="text" id="mtu" placeholder="默认留空使用自动值">
+
+
+
+  <label>映射（mapping）</label>
+  <textarea id="mapping" rows="5" placeholder="例如：tcp:0.0.0.0:80->10.26.0.10:81"></textarea>
+
+  <label>丢包率（packet_loss）</label>
+  <input type="text" id="packet_loss" placeholder="0~1之间的值，用于测试">
+
+  <label>延迟（packet_delay）</label>
+  <input type="text" id="packet_delay" placeholder="单位：毫秒">
+
+  <div class="actions">
+    <button type="button" onclick="generateYAML()">✨ 生成 config.yaml</button>
+    <button type="button" onclick="copyYAML()">📋 复制</button>
+    <button type="button" onclick="downloadYAML()">💾 下载</button>
+  </div>
+
+  <label>生成结果：</label>
+  <textarea id="yamlOutput" readonly placeholder="生成的 config.yaml 将显示在这里"></textarea>
+</div>
+
+<script>
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+document.getElementById('genUUID').onclick = function() {
+  document.getElementById('device_id').value = generateUUID();
+};
+
+function generateYAML() {
+  const getVal = id => document.getElementById(id).value.trim();
+  const getList = id => getVal(id).split(/\n+/).filter(Boolean);
+
+  const data = {
+    token: getVal('token'),
+    name: getVal('name'),
+    ip: getVal('ip'),
+    device_id: getVal('device_id'),
+    server_address: `${getVal('protocol')}://${getVal('server_address')}:${getVal('server_port')}`,
+    stun_server: getList('stun_server'),
+    dns: getList('dns'),
+    mtu: getVal('mtu'),
+    password: getVal('password'),
+    mapping: getList('mapping'),
+    packet_loss: getVal('packet_loss'),
+    packet_delay: getVal('packet_delay'),
+    punch_model: getVal('punch_model'),
+    use_channel: getVal('use_channel'),
+    cipher_model: getVal('cipher_model'),
+	server_encrypt: getVal('server_encrypt'),
+    compressor: getVal('compressor')
+  };
+
+  let yaml = '# VNT config.yaml 自动生成文件\n';
+  for (const [key, val] of Object.entries(data)) {
+    if (!val || (Array.isArray(val) && val.length === 0)) continue;
+    switch (key) {
+      case 'token': yaml += `token: ${val} # 组网 Token\n`; break;
+      case 'server_address': yaml += `server_address: ${val} # 注册和中继服务器\n`; break;
+      case 'ip': yaml += `ip: ${val} # 接口 IP 地址\n`; break;
+      case 'device_id': yaml += `device_id: ${val} # 设备 ID\n`; break;
+      case 'name': yaml += `name: ${val} # 设备名称\n`; break;
+      case 'stun_server': yaml += 'stun_server: # STUN 服务器\n' + val.map(v => `  - ${v}\n`).join(''); break;
+      case 'dns': yaml += 'dns: # DNS 服务器\n' + val.map(v => `  - ${v}\n`).join(''); break;
+      case 'mtu': yaml += `mtu: ${val} # MTU 值\n`; break;
+      case 'password': yaml += `password: ${val} # 加密密钥\n`; break;
+      case 'mapping': yaml += 'mapping: # 端口映射\n' + val.map(v => `  - ${v}\n`).join(''); break;
+      case 'packet_loss': yaml += `packet_loss: ${val} # 模拟丢包率\n`; break;
+      case 'packet_delay': yaml += `packet_delay: ${val} # 模拟延迟(毫秒)\n`; break;
+      case 'punch_model': yaml += `punch_model: ${val} # 打洞模式\n`; break;
+      case 'use_channel': yaml += `use_channel: ${val} # 传输模式\n`; break;
+      case 'cipher_model': yaml += `cipher_model: ${val} # 加密模式\n`; break;
+	  case 'server_encrypt': yaml += `server_encrypt: ${val} # 服务端加密\n`; break;
+      case 'compressor': yaml += `compressor: ${val} # 压缩算法\n`; break;
+    }
+  }
+  document.getElementById('yamlOutput').value = yaml;
+}
+
+function copyYAML() {
+  const text = document.getElementById('yamlOutput').value;
+  if (!text) return alert('请先生成配置');
+  navigator.clipboard.writeText(text);
+  alert('已复制到剪贴板！');
+}
+
+function downloadYAML() {
+  const text = document.getElementById('yamlOutput').value;
+  if (!text) return alert('请先生成配置');
+  const blob = new Blob([text], { type: 'text/yaml' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'config.yaml';
+  a.click();
+}
+</script>
+</body>
+</html>
