@@ -135,10 +135,12 @@ textarea#yamlOutput {
 	<label>加密模式（cipher_model）</label>
   <select id="cipher_model">
     <option value="off">off（不加密）</option>
-    <option value="aes_gcm">aes_gcm</option>
     <option value="aes_ecb">aes_ecb</option>
-    <option value="chacha20" selected>chacha20</option>
-    <option value="chacha20_poly1305">chacha20_poly1305</option>
+	<option value="sm4_cbc">sm4_cbc</option>
+	<option value="aes_cbc">aes_cbc</option>
+    <option value="chacha20" >chacha20</option>
+    <option value="aes_gcm" selected>aes_gcm (X86设备首选)</option>
+    <option value="chacha20_poly1305">chacha20_poly1305 (ARM设备首选)</option>
     <option value="xor">xor</option>
   </select>
   
@@ -220,7 +222,7 @@ function generateYAML() {
     compressor: getVal('compressor')
   };
 
-  let yaml = '# VNT config.yaml 自动生成文件\n';
+  let yaml = '# VNT config.yaml 自动生成文件\n# https://github.com/xiaoheinewbie/vnt-config-web\n#\n';
   for (const [key, val] of Object.entries(data)) {
     if (!val || (Array.isArray(val) && val.length === 0)) continue;
     switch (key) {
